@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover, maximum-scale=1.0">
+<title>设置</title>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--blue:#007AFF;--red:#FF3B30;--orange:#FF9500;--green:#34C759}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Helvetica Neue',sans-serif;background:#000;color:#fff;height:100dvh;overflow:hidden;display:flex;flex-direction:column;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+
+/* 状态栏 */
+.status-bar{display:flex;justify-content:space-between;align-items:center;padding:14px 28px 8px;font-size:14px;font-weight:600;background:rgba(0,0,0,.3);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+.status-icons{display:flex;gap:5px;align-items:center}
+.status-icons svg{width:18px;height:18px}
+
+/* 舞台 */
+.stage-area{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;position:relative;overflow:hidden}
+
+/* iOS 弹窗卡片 */
+.alert-card{background:rgba(28,28,30,.88);backdrop-filter:blur(70px) saturate(200%);-webkit-backdrop-filter:blur(70px) saturate(200%);border:.5px solid rgba(255,255,255,.18);border-radius:36px;padding:32px 24px 22px;width:100%;max-width:340px;text-align:center;box-shadow:0 24px 80px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.08);transition:transform .45s cubic-bezier(.34,1.56,.64,1),opacity .35s ease;position:absolute}
+.alert-card.hidden{transform:translateY(40px) scale(.92);opacity:0;pointer-events:none}
+.alert-icon{font-size:52px;margin-bottom:10px;line-height:1}
+.alert-title{font-size:20px;font-weight:600;letter-spacing:-.3px;margin-bottom:6px}
+.alert-desc{font-size:14px;color:rgba(255,255,255,.55);line-height:1.5;margin-bottom:22px}
+.alert-desc b{color:var(--red);font-weight:600}
+
+/* iOS 按钮 */
+.btn-group{display:flex;flex-direction:column;gap:9px;width:100%}
+.ios-btn{width:100%;padding:13px;border-radius:14px;font-size:16px;font-weight:600;border:none;font-family:inherit;cursor:pointer;letter-spacing:-.2px;transition:all .12s ease;color:#fff}
+.ios-btn:active{transform:scale(.95);opacity:.75}
+.ios-btn.primary{background:var(--blue)}
+.ios-btn.ghost{background:rgba(120,120,128,.22);color:var(--blue);border:.5px solid rgba(120,120,128,.25)}
+.ios-btn.danger{background:var(--red)}
+.ios-btn.gray{background:rgba(120,120,128,.22);color:rgba(255,255,255,.55)}
+
+/* 扫描界面 */
+.scan-wrap{width:100%;max-width:340px;text-align:center}
+.scan-ring{width:110px;height:110px;border-radius:50%;margin:0 auto 20px;background:conic-gradient(from 0deg,var(--red),var(--orange),var(--red),transparent 60%);animation:spin 1.5s linear infinite;display:flex;align-items:center;justify-content:center;box-shadow:0 0 50px rgba(255,59,48,.35)}
+.scan-ring-inner{width:90px;height:90px;border-radius:50%;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;font-size:28px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.scan-progress-wrap{margin-bottom:14px}
+.scan-pct{font-size:36px;font-weight:700;letter-spacing:-1px}
+.scan-label{font-size:13px;color:rgba(255,255,255,.4);margin-top:2px}
+.scan-bar-track{height:4px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden;margin-bottom:14px}
+.scan-bar-fill{height:100%;background:var(--blue);border-radius:2px;width:0;transition:width .25s ease}
+.scan-list{max-height:160px;overflow-y:auto;text-align:left;font-size:11px;font-family:'SF Mono',Menlo,monospace;color:rgba(255,255,255,.5);margin-bottom:14px;padding:0 4px}
+.scan-list div{padding:2px 0}
+.scan-list .ok{color:rgba(255,255,255,.3)}
+.scan-list .found{color:var(--red);font-weight:600}
+.scan-list .warn{color:var(--orange)}
+
+/* 勒索界面 */
+.ransom-amount{font-size:48px;font-weight:800;letter-spacing:-2px;margin:8px 0 12px;background:linear-gradient(135deg,#FF3B30,#FF9500);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.ransom-qr{width:100px;height:100px;background:rgba(255,255,255,.06);border-radius:16px;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-size:52px;border:1px dashed rgba(255,255,255,.1)}
+.timer-row{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:8px;color:var(--red);font-size:14px;font-weight:600}
+
+/* 揭晓遮罩 */
+.reveal-overlay{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.75);backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);opacity:0;pointer-events:none;transition:opacity .5s ease}
+.reveal-overlay.active{opacity:1;pointer-events:auto}
+.reveal-card{background:rgba(28,28,30,.9);backdrop-filter:blur(70px) saturate(200%);-webkit-backdrop-filter:blur(70px) saturate(200%);border:.5px solid rgba(255,255,255,.18);border-radius:36px;padding:36px 28px 24px;text-align:center;max-width:320px;width:90%;box-shadow:0 24px 80px rgba(0,0,0,.7)}
+.reveal-emoji{font-size:80px;line-height:1;margin-bottom:12px}
+.reveal-title{font-size:26px;font-weight:700;letter-spacing:-.5px;margin-bottom:10px}
+.reveal-text{font-size:15px;color:rgba(255,255,255,.5);line-height:1.6;margin-bottom:22px}
+
+/* confetti canvas */
+#confetti{position:fixed;inset:0;z-index:300;pointer-events:none}
+
+/* 背景粒子 */
+.bg-orb{position:fixed;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:0}
+</style>
+</head>
+<body>
+
+<div class="status-bar">
+  <span>9:41</span>
+  <span class="status-icons">
+    <svg viewBox="0 0 20 14"><rect x="0" y="9" width="2.5" height="5" rx=".6" fill="#fff"/><rect x="3.8" y="6" width="2.5" height="8" rx=".6" fill="#fff"/><rect x="7.6" y="3" width="2.5" height="11" rx=".6" fill="#fff"/><rect x="11.4" y="0" width="2.5" height="14" rx=".6" fill="#fff"/></svg>
+    <span style="font-size:13px">5G</span>
+    <svg viewBox="0 0 28 14"><rect x="0" y="0" width="24" height="14" rx="3" fill="none" stroke="#fff" stroke-width="1.2" opacity=".6"/><rect x="2" y="2.5" width="18" height="9" rx="1.5" fill="#fff" opacity=".9"/><rect x="24" y="4.5" width="2.5" height="5" rx=".8" fill="#fff" opacity=".4"/></svg>
+  </span>
+</div>
+
+<div class="stage-area">
+
+<!-- S1: 警告弹窗 -->
+<div class="alert-card" id="s1">
+  <div class="alert-icon">🛡️</div>
+  <div class="alert-title">安全警告</div>
+  <div class="alert-desc">检测到您的设备存在<b>3 个严重安全威胁</b>，可能正在泄露您的个人隐私数据。</div>
+  <div class="btn-group">
+    <button class="ios-btn danger" onclick="goScan()">🔍 立即扫描修复</button>
+    <button class="ios-btn ghost" onclick="goIgnore()">忽略</button>
+  </div>
+</div>
+
+<!-- S2: 扫描中 -->
+<div class="alert-card hidden" id="s2">
+  <div class="scan-ring"><div class="scan-ring-inner">🔍</div></div>
+  <div class="scan-pct" id="scanPct">0%</div>
+  <div class="scan-label" id="scanProgress">正在初始化扫描引擎...</div>
+  <div class="scan-bar-track"><div class="scan-bar-fill" id="scanBar"></div></div>
+  <div class="scan-list" id="scanList"></div>
+</div>
+
+<!-- S3: 发现威胁 -->
+<div class="alert-card hidden" id="s3">
+  <div class="alert-icon">🚨</div>
+  <div class="alert-title">发现严重威胁！</div>
+  <div class="alert-desc">
+    您的设备已感染<b>「WannaCry 3.0」</b>勒索病毒<br><br>
+    📁 相册 · <b>2,341 张照片</b> 面临风险<br>
+    💬 微信聊天记录 · <b>12.8 GB</b> 面临风险<br>
+    🔑 密码钥匙串 · <b>47 个密码</b> 面临风险<br>
+    📍 位置历史 · <b>1,892 条记录</b> 面临风险
+  </div>
+  <div class="btn-group">
+    <button class="ios-btn danger" onclick="goRansom()">查看解决方案</button>
+    <button class="ios-btn ghost" onclick="goIgnore2()">我不在乎</button>
+  </div>
+</div>
+
+<!-- S4: 赎金 -->
+<div class="alert-card hidden" id="s4">
+  <div class="alert-icon">💀</div>
+  <div class="alert-title">文件已被加密</div>
+  <div class="alert-desc">你的所有文件已被军用级 AES-256 加密<br>如需解锁，请支付赎金</div>
+  <div class="ransom-amount">¥0.01</div>
+  <div class="ransom-qr">🤳</div>
+  <div style="font-size:12px;color:rgba(255,255,255,.35);margin-bottom:14px">微信扫码支付 · 一分钱解锁全设备</div>
+  <div class="timer-row" id="countdown">⏱ 剩余时间 04:59</div>
+  <div class="btn-group" style="margin-top:10px">
+    <button class="ios-btn primary" onclick="goReveal()">💰 支付 ¥0.01 解锁</button>
+    <button class="ios-btn gray" onclick="goIgnore3()">拒绝支付</button>
+  </div>
+</div>
+
+</div>
+
+<!-- 揭晓层 -->
+<div class="reveal-overlay" id="revealOverlay">
+  <div class="reveal-card">
+    <div class="reveal-emoji">🤡</div>
+    <div class="reveal-title">你被整蛊了！</div>
+    <div class="reveal-text">
+      哪有什么病毒～<br>
+      这就是一个恶搞页面！<br>
+      你刚才的表情一定很好笑 😂<br>
+      快去截图发给朋友吧！
+    </div>
+    <button class="ios-btn primary" onclick="resetAll()">😤 再来一次！</button>
+  </div>
+</div>
+
+<!-- 背景光球 -->
+<div class="bg-orb" style="width:200px;height:200px;background:rgba(255,59,48,.12);top:-60px;left:-40px"></div>
+<div class="bg-orb" style="width:180px;height:180px;background:rgba(0,122,255,.1);bottom:-40px;right:-30px"></div>
+<div class="bg-orb" style="width:140px;height:140px;background:rgba(255,149,0,.08);top:40%;left:50%"></div>
+
+<canvas id="confetti"></canvas>
+
+<script>
+// 时间
+function updateTime(){const n=new Date();document.querySelector('.status-bar span').textContent=n.getHours().toString().padStart(2,'0')+':'+n.getMinutes().toString().padStart(2,'0')}
+updateTime();setInterval(updateTime,30000);
+
+// 阶段切换
+function showStage(id){
+  ['s1','s2','s3','s4'].forEach(s=>document.getElementById(s).classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+}
+function goScan(){
+  showStage('s2');
+  runScan();
+}
+function goIgnore(){
+  const ghost=document.querySelector('#s1 .ios-btn.ghost');
+  ghost.textContent='⚠️ 忽略无效！';ghost.style.color='#FF3B30';ghost.style.borderColor='rgba(255,59,48,.5)';
+  const title=document.querySelector('#s1 .alert-title');
+  title.textContent='⚠️ 威胁已升级！';title.style.color='#FF3B30';
+  document.querySelector('#s1 .alert-desc').innerHTML='警告：检测到<b>5 个严重安全威胁</b>！您的微信聊天记录正在被上传到远端服务器！';
+  document.querySelector('#s1 .alert-icon').textContent='🚨';
+  setTimeout(()=>{ghost.textContent='忽略';ghost.style.color='';ghost.style.borderColor='';title.textContent='安全警告';title.style.color='';},3000);
+}
+function goIgnore2(){
+  const btn=document.querySelector('#s3 .ios-btn.ghost');
+  btn.textContent='⚠️ 无效！威胁加剧';btn.style.color='#FF3B30';btn.style.borderColor='rgba(255,59,48,.5)';btn.disabled=true;
+  document.querySelector('#s3 .alert-title').textContent='🔥 威胁失控！';
+  setTimeout(()=>{goRansom()},1500);
+}
+function goIgnore3(){
+  const btn=document.querySelector('#s4 .ios-btn.gray');
+  btn.textContent='拒绝无效！已锁定';btn.disabled=true;
+  document.querySelector('#s4 .alert-title').textContent='🔒 设备已永久锁定';
+  document.querySelector('#s4 .ransom-amount').textContent='¥9999';
+}
+
+// 倒计时
+let countdownSec=299;
+setInterval(()=>{
+  countdownSec=Math.max(0,countdownSec-1);
+  const m=Math.floor(countdownSec/60),s=countdownSec%60;
+  const el=document.getElementById('countdown');
+  if(el)el.textContent=`⏱ 剩余时间 ${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+  if(countdownSec===0){const el2=document.getElementById('countdown');if(el2)el2.textContent='⏱ 时间到！文件已永久销毁';}
+},1000);
+
+// 扫描
+function runScan(){
+  const items=[
+    '系统内核','安全框架','网络栈','文件系统','钥匙串','沙箱','App 存储','相册权限','相机权限',
+    '麦克风权限','位置服务','通讯录','日历','提醒事项','健康数据','HomeKit','蓝牙',
+    'Wi-Fi 配置','VPN 配置','微信数据','支付宝数据','浏览器缓存','剪贴板','通知中心'
+  ];
+  const listEl=document.getElementById('scanList');
+  const pctEl=document.getElementById('scanPct');
+  const barEl=document.getElementById('scanBar');
+  const progEl=document.getElementById('scanProgress');
+  let i=0,found=0;
+  const interval=setInterval(()=>{
+    if(i>=items.length){clearInterval(interval);progEl.textContent='扫描完成！发现 3 个威胁';setTimeout(()=>showStage('s3'),900);return}
+    const isThreat=(i===8||i===14||i===20);
+    const cls=isThreat?'found':(i%5===0?'warn':'ok');
+    const mark=isThreat?' ⚠️ 威胁!':(i%5===0?' ⚡':' ✓');
+    const div=document.createElement('div');div.className=cls;
+    div.textContent=`[${isThreat?'!':i%5===0?'~':'+'}] ${items[i]}${mark}`;
+    if(isThreat){div.textContent+=' (高危)';found++}
+    listEl.appendChild(div);listEl.scrollTop=listEl.scrollHeight;
+    const pct=Math.round((i+1)/items.length*100);
+    pctEl.textContent=pct+'%';barEl.style.width=pct+'%';
+    progEl.textContent=`已扫描 ${i+1} 个文件`+(found>0?` · 发现 ${found} 个威胁`:'');
+    i++;
+  },180);
+}
+
+function goRansom(){showStage('s4')}
+function goReveal(){document.getElementById('revealOverlay').classList.add('active');spawnConfetti()}
+
+function resetAll(){
+  document.getElementById('revealOverlay').classList.remove('active');
+  document.getElementById('scanList').innerHTML='';
+  document.getElementById('scanBar').style.width='0%';
+  document.getElementById('scanPct').textContent='0%';
+  document.getElementById('scanProgress').textContent='正在初始化扫描引擎...';
+  document.querySelector('#s1 .alert-icon').textContent='🛡️';
+  document.querySelector('#s1 .alert-title').textContent='安全警告';
+  document.querySelector('#s1 .alert-title').style.color='';
+  document.querySelector('#s1 .alert-desc').innerHTML='检测到您的设备存在<b>3 个严重安全威胁</b>，可能正在泄露您的个人隐私数据。';
+  document.querySelector('#s1 .ios-btn.ghost').textContent='忽略';
+  document.querySelector('#s1 .ios-btn.ghost').style.cssText='';
+  document.querySelector('#s3 .ios-btn.ghost').textContent='我不在乎';
+  document.querySelector('#s3 .ios-btn.ghost').style.cssText='';
+  document.querySelector('#s3 .ios-btn.ghost').disabled=false;
+  document.querySelector('#s3 .alert-title').textContent='发现严重威胁！';
+  document.querySelector('#s4 .alert-title').textContent='文件已被加密';
+  document.querySelector('#s4 .ransom-amount').textContent='¥0.01';
+  document.querySelector('#s4 .ios-btn.gray').textContent='拒绝支付';
+  document.querySelector('#s4 .ios-btn.gray').disabled=false;
+  countdownSec=299;
+  showStage('s1');
+}
+
+function spawnConfetti(){
+  const canvas=document.getElementById('confetti');
+  const ctx=canvas.getContext('2d');
+  canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+  const colors=['#FF3B30','#FF9500','#FFCC00','#34C759','#007AFF','#AF52DE','#FF2D55','#5AC8FA'];
+  const particles=[];
+  for(let i=0;i<100;i++){particles.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height-canvas.height,w:Math.random()*10+5,h:Math.random()*6+4,color:colors[Math.floor(Math.random()*colors.length)],vx:(Math.random()-.5)*3,vy:Math.random()*3+2,rot:Math.random()*360,rv:(Math.random()-.5)*10})}
+  function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);let alive=false;particles.forEach(p=>{if(p.y>canvas.height+20)return;alive=true;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);ctx.fillStyle=p.color;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();p.x+=p.vx;p.y+=p.vy;p.rot+=p.rv;p.vy+=.05});if(alive)requestAnimationFrame(draw)}
+  draw()
+}
+</script>
+</body>
+</html>

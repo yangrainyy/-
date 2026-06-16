@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚠️ 系统安全警告</title>
+<style>
+  :root {
+    --glass-bg: rgba(255, 255, 255, 0.08);
+    --glass-border: rgba(255, 255, 255, 0.15);
+    --glass-shadow: rgba(0, 0, 0, 0.25);
+    --accent: #ff3b30;
+    --accent-glow: rgba(255, 59, 48, 0.5);
+    --green: #30d158;
+    --blue: #0a84ff;
+    --text: #ffffff;
+    --text-dim: rgba(255, 255, 255, 0.7);
+    --text-muted: rgba(255, 255, 255, 0.45);
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'PingFang SC', 'Helvetica Neue', sans-serif;
+    min-height: 100vh;
+    background: #0a0a0a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+    cursor: default;
+  }
+
+  /* ── 动态渐变背景 ── */
+  .bg-orbs {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  .orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: 0.6;
+    animation: floatOrb linear infinite;
+    pointer-events: none;
+  }
+  .orb-1 {
+    width: 500px;
+    height: 500px;
+    background: #ff3b30;
+    top: -15%;
+    left: -10%;
+    animation-duration: 20s;
+  }
+  .orb-2 {
+    width: 400px;
+    height: 400px;
+    background: #0a84ff;
+    bottom: -15%;
+    right: -8%;
+    animation-duration: 25s;
+    animation-delay: -5s;
+  }
+  .orb-3 {
+    width: 300px;
+    height: 300px;
+    background: #af52de;
+    top: 40%;
+    left: 50%;
+    animation-duration: 22s;
+    animation-delay: -10s;
+  }
+  .orb-4 {
+    width: 250px;
+    height: 250px;
+    background: #ff9f0a;
+    top: 10%;
+    right: 15%;
+    animation-duration: 18s;
+    animation-delay: -3s;
+  }
+
+  @keyframes floatOrb {
+    0%, 100% {
+      transform: translate(0, 0) scale(1);
+    }
+    25% {
+      transform: translate(60px, -80px) scale(1.15);
+    }
+    50% {
+      transform: translate(-30px, 40px) scale(0.9);
+    }
+    75% {
+      transform: translate(-70px, -30px) scale(1.1);
+    }
+  }
+
+  /* 网格粒子 */
+  .grid-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    opacity: 0.04;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+  }
+
+  .particles {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .particle {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: white;
+    border-radius: 50%;
+    animation: particleDrift linear infinite;
+    opacity: 0;
+  }
+
+  @keyframes particleDrift {
+    0% {
+      opacity: 0;
+      transform: translateY(0) translateX(0);
+    }
+    10% {
+      opacity: 0.8;
+    }
+    90% {
+      opacity: 0.2;
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-100vh) translateX(30px);
+    }
+  }
+
+  /* ── 主容器 ── */
+  .main-container {
+    position: relative;
+    z-index: 10;
+    width: 680px;
+    max-width: 94vw;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  /* ── 玻璃卡片 ── */
+  .glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    padding: 28px 32px;
+    box-shadow:
+      0 8px 32px var(--glass-shadow),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    transition: all 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
+
+  .glass-card:hover {
+    box-shadow:
+      0 12px 40px rgba(0, 0, 0, 0.35),
+      inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  }
+
+  /* ── 标题区 ── */
+  .header-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 6px;
+  }
+
+  .shield-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    animation: pulseWarning 1.8s ease-in-out infinite;
+    box-shadow: 0 0 20px var(--accent-glow);
+  }
+
+  @keyframes pulseWarning {
+    0%, 100% {
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+    50% {
+      box-shadow: 0 0 40px var(--accent-glow), 0 0 60px rgba(255, 59, 48, 0.3);
+    }
+  }
+
+  .title-text h1 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.3px;
+    line-height: 1.2;
+  }
+
+  .title-text p {
+    font-size: 13px;
+    color: var(--text-dim);
+    font-weight: 500;
+    letter-spacing: 0.2px;
+  }
+
+  /* ── 威胁等级 ── */
+  .threat-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 59, 48, 0.2);
+    border: 1px solid rgba(255, 59, 48, 0.35);
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #ff6961;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    animation: badgeGlow 2s ease-in-out infinite;
+  }
+
+  @keyframes badgeGlow {
+    0%, 100% {
+      box-shadow: 0 0 8px rgba(255, 59, 48, 0.2);
+    }
+    50% {
+      box-shadow: 0 0 18px rgba(255, 59, 48, 0.45);
+    }
+  }
+
+  .threat-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: dotBlink 0.8s step-end infinite;
+  }
+
+  @keyframes dotBlink {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.2;
+    }
+  }
+
+  /* ── 信息行 ── */
+  .info-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 12px;
+    margin-top: 4px;
+    font-size: 13px;
+    color: var(--text-dim);
+    font-weight: 500;
+  }
+
+  .info-row .label {
+    color: var(--text-muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+
+  .info-row .value {
+    color: var(--text);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+  }
+
+  /* ── 假终端 ── */
+  .fake-terminal {
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin-top: 8px;
+    font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', 'Consolas', 'Courier New', monospace;
+    font-size: 12px;
+    line-height: 1.7;
+    color: var(--green);
+    max-height: 180px;
+    overflow-y: auto;
+    box-shadow: inset 0 2px 8px rgba(0,0,0,0.4);
+    position: relative;
+  }
+
+  .fake-terminal .line {
+    opacity: 0;
+    animation: fadeInLine 0.15s forwards;
+  }
+
+  .fake-terminal .line.dim {
+    color: rgba(48, 209, 88, 0.5);
+  }
+  .fake-terminal .line.warn {
+    color: #ff9f0a;
+  }
+  .fake-terminal .line.err {
+    color: #ff453a;
+  }
+  .fake-terminal .line.hl {
+    color: #0a84ff;
+  }
+
+  @keyframes fadeInLine {
+    to {
+      opacity: 1;
+    }
+  }
+
+  .terminal-cursor {
+    display: inline-block;
+    width: 8px;
+    height: 14px;
+    background: var(--green);
+    animation: cursorBlink 0.7s step-end infinite;
+    vertical-align: text-bottom;
+    margin-left: 1px;
+  }
+
+  @keyframes cursorBlink {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
+  }
+
+  /* ── 进度条 ── */
+  .progress-section {
+    margin-top: 6px;
+  }
+
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 6px;
+  }
+
+  .progress-track {
+    height: 6px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s ease-out;
+    position: relative;
+  }
+
+  .progress-fill.danger {
+    background: linear-gradient(90deg, #ff3b30, #ff6b5e);
+    box-shadow: 0 0 8px rgba(255, 59, 48, 0.5);
+  }
+  .progress-fill.warning {
+    background: linear-gradient(90deg, #ff9f0a, #ffb340);
+    box-shadow: 0 0 8px rgba(255, 159, 10, 0.5);
+  }
+  .progress-fill.info {
+    background: linear-gradient(90deg, #0a84ff, #40a0ff);
+    box-shadow: 0 0 8px rgba(10, 132, 255, 0.5);
+  }
+
+  .progress-fill::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    animation: shimmerBar 2s ease-in-out infinite;
+  }
+
+  @keyframes shimmerBar {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  /* ── 按钮 ── */
+  .btn-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 4px;
+  }
+
+  .btn {
+    flex: 1;
+    padding: 14px 20px;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.2px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.25, 0.1, 0.25, 1);
+    position: relative;
+    overflow: hidden;
+    font-family: inherit;
+  }
+
+  .btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+    pointer-events: none;
+  }
+
+  .btn-primary {
+    background: var(--blue);
+    color: white;
+    box-shadow: 0 4px 16px rgba(10, 132, 255, 0.35);
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 24px rgba(10, 132, 255, 0.5);
+  }
+
+  .btn-primary:active {
+    transform: scale(0.97);
+  }
+
+  .btn-ghost {
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text-dim);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  .btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text);
+  }
+
+  /* ── 倒计时 ── */
+  .countdown-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #ff9f0a;
+    font-variant-numeric: tabular-nums;
+    font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+  }
+
+  /* ── 揭示画面 ── */
+  .reveal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.6s ease;
+  }
+
+  .reveal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .reveal-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(50px) saturate(200%);
+    -webkit-backdrop-filter: blur(50px) saturate(200%);
+    border: 1px solid var(--glass-border);
+    border-radius: 28px;
+    padding: 40px 36px;
+    text-align: center;
+    max-width: 500px;
+    width: 90vw;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  @keyframes popIn {
+    from {
+      transform: scale(0.85);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  .reveal-emoji {
+    font-size: 72px;
+    animation: bounceEmoji 0.8s ease infinite alternate;
+  }
+
+  @keyframes bounceEmoji {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(-16px);
+    }
+  }
+
+  .reveal-title {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--text);
+    margin: 12px 0 6px;
+    letter-spacing: -0.5px;
+  }
+
+  .reveal-sub {
+    font-size: 15px;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+
+  .reveal-btn {
+    margin-top: 20px;
+    padding: 12px 32px;
+    border-radius: 30px;
+    border: none;
+    background: var(--green);
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 16px rgba(48, 209, 88, 0.35);
+  }
+
+  .reveal-btn:hover {
+    transform: scale(1.04);
+    box-shadow: 0 6px 24px rgba(48, 209, 88, 0.5);
+  }
+
+  /* ── 五彩纸屑 ── */
+  .confetti-piece {
+    position: fixed;
+    z-index: 200;
+    pointer-events: none;
+    animation: confettiFall linear forwards;
+  }
+
+  @keyframes confettiFall {
+    0% {
+      transform: translateY(-10vh) rotateZ(0deg) rotateX(0deg);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(110vh) rotateZ(720deg) rotateX(180deg);
+      opacity: 0;
+    }
+  }
+
+  /* ── 响应式 ── */
+  @media (max-width: 600px) {
+    .glass-card {
+      padding: 20px 16px;
+      border-radius: 20px;
+    }
+    .title-text h1 {
+      font-size: 17px;
+    }
+    .fake-terminal {
+      font-size: 10px;
+      max-height: 140px;
+    }
+    .btn {
+      font-size: 13px;
+      padding: 12px 14px;
+    }
+    .btn-row {
+      flex-direction: column;
+    }
+    .reveal-card {
+      padding: 28px 20px;
+    }
+    .reveal-emoji {
+      font-size: 52px;
+    }
+    .reveal-title {
+      font-size: 22px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- 背景光球 -->
+<div class="bg-orbs">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="orb orb-4"></div>
+</div>
+
+<!-- 网格 -->
+<div class="grid-overlay"></div>
+
+<!-- 浮动粒子 -->
+<div class="particles" id="particles"></div>
+
+<!-- 主界面 -->
+<main class="main-container">
+  <!-- 卡片 1: 警告 -->
+  <div class="glass-card" id="mainCard">
+    <div class="header-row">
+      <div class="shield-icon">🛡️</div>
+      <div class="title-text">
+        <h1>⚠️ 系统安全警告</h1>
+        <p>检测到严重安全威胁 · 需立即处理</p>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:12px;margin-top:12px;">
+      <span class="threat-badge">
+        <span class="threat-dot"></span> 威胁等级: 严重
+      </span>
+      <span class="countdown-badge" id="countdownBadge">
+        ⏱ <span id="countdownTime">04:59</span>
+      </span>
+    </div>
+
+    <div class="info-row">
+      <span class="label">设备</span>
+      <span class="value" id="deviceName">—</span>
+    </div>
+    <div class="info-row">
+      <span class="label">IP 地址</span>
+      <span class="value" id="ipAddr">—</span>
+    </div>
+    <div class="info-row">
+      <span class="label">威胁类型</span>
+      <span class="value" style="color:#ff6961;">Ransomware · 勒索软件</span>
+    </div>
+
+    <!-- 假终端 -->
+    <div class="fake-terminal" id="terminal">
+      <span class="terminal-cursor"></span>
+    </div>
+
+    <!-- 进度条 -->
+    <div class="progress-section">
+      <div class="progress-label">
+        <span>🔴 文件加密进度</span>
+        <span id="encryptPercent">0%</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill danger" id="encryptBar" style="width:0%"></div>
+      </div>
+    </div>
+    <div class="progress-section" style="margin-top:10px;">
+      <div class="progress-label">
+        <span>🟠 数据泄露进度</span>
+        <span id="leakPercent">0%</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill warning" id="leakBar" style="width:0%"></div>
+      </div>
+    </div>
+    <div class="progress-section" style="margin-top:10px;">
+      <div class="progress-label">
+        <span>🔵 系统感染进度</span>
+        <span id="infectPercent">0%</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill info" id="infectBar" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" id="btnRansom" onclick="handleRansom()">
+        💰 支付赎金解除锁定
+      </button>
+      <button class="btn btn-ghost" onclick="handleIgnore()">
+        忽略警告
+      </button>
+    </div>
+
+    <p style="text-align:center;font-size:10px;color:var(--text-muted);margin-top:10px;">
+      ⚠️ 您的个人文件、照片、浏览器历史记录将被永久加密
+    </p>
+  </div>
+</main>
+
+<!-- 揭示层 -->
+<div class="reveal-overlay" id="revealOverlay">
+  <div class="reveal-card">
+    <div class="reveal-emoji">🤡</div>
+    <div class="reveal-title">你被整蛊了！</div>
+    <div class="reveal-sub">
+      哪有什么勒索软件～<br>
+      这就是一个恶搞页面而已！<br>
+      你刚刚的表情一定很好笑 😂<br>
+      快去截图发给你朋友吧！
+    </div>
+    <button class="reveal-btn" onclick="closeReveal()">
+      😤 原来如此！再来一次
+    </button>
+  </div>
+</div>
+
+<script>
+// ── 初始化 ──
+document.addEventListener('DOMContentLoaded', () => {
+  createParticles();
+  detectDevice();
+  startCountdown();
+  startTerminal();
+  startProgressBars();
+});
+
+// ── 浮动粒子 ──
+function createParticles() {
+  const container = document.getElementById('particles');
+  for (let i = 0; i < 40; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.animationDuration = (6 + Math.random() * 12) + 's';
+    p.style.animationDelay = Math.random() * 10 + 's';
+    p.style.width = p.style.height = (1 + Math.random() * 2.5) + 'px';
+    container.appendChild(p);
+  }
+}
+
+// ── 设备检测 ──
+function detectDevice() {
+  const ua = navigator.userAgent;
+  let os = 'Unknown';
+  let browser = 'Unknown';
+
+  if (/Windows NT 10/i.test(ua)) os = 'Windows 11 Pro';
+  else if (/Windows NT 6\.3/i.test(ua)) os = 'Windows 8.1';
+  else if (/Windows NT 6\.1/i.test(ua)) os = 'Windows 7';
+  else if (/Mac OS X 15/i.test(ua)) os = 'macOS Sequoia';
+  else if (/Mac OS X 14/i.test(ua)) os = 'macOS Sonoma';
+  else if (/Mac OS X/i.test(ua)) os = 'macOS Ventura';
+  else if (/iPhone|iPad/i.test(ua)) os = 'iOS 18';
+  else if (/Android/i.test(ua)) os = 'Android 15';
+  else if (/Linux/i.test(ua)) os = 'Ubuntu 24.04 LTS';
+
+  if (/Chrome/i.test(ua) && !/Edge/i.test(ua)) browser = 'Chrome 131';
+  else if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) browser = 'Safari 18';
+  else if (/Firefox/i.test(ua)) browser = 'Firefox 133';
+  else if (/Edge/i.test(ua)) browser = 'Edge 131';
+
+  document.getElementById('deviceName').textContent = `${os} · ${browser}`;
+}
+
+// ── IP 地址 ──
+async function fetchIP() {
+  try {
+    const res = await fetch('https://api.ipify.org?format=json');
+    const data = await res.json();
+    document.getElementById('ipAddr').textContent = data.ip;
+  } catch {
+    document.getElementById('ipAddr').textContent = '192.168.' +
+      Math.floor(Math.random()*255) + '.' + Math.floor(Math.random()*255);
+  }
+}
+fetchIP();
+
+// ── 倒计时 ──
+let countdownSeconds = 4 * 60 + 59;
+
+function startCountdown() {
+  const el = document.getElementById('countdownTime');
+  const tick = () => {
+    if (countdownSeconds <= 0) {
+      el.textContent = '00:00';
+      el.style.color = '#ff3b30';
+      return;
+    }
+    countdownSeconds--;
+    const m = String(Math.floor(countdownSeconds / 60)).padStart(2, '0');
+    const s = String(countdownSeconds % 60).padStart(2, '0');
+    el.textContent = `${m}:${s}`;
+
+    if (countdownSeconds < 60) {
+      el.style.color = '#ff3b30';
+    }
+    setTimeout(tick, 1000);
+  };
+  tick();
+}
+
+// ── 假终端 ──
+const terminalLines = [
+  { text: '[SYSTEM] 初始化安全扫描...', cls: 'dim' },
+  { text: '[SYSTEM] 扫描系统内核... OK', cls: 'dim', delay: 600 },
+  { text: '[SCAN]  检测到 3 个高危漏洞', cls: 'warn', delay: 400 },
+  { text: '[SCAN]  CVE-2024-1337 · 内核提权', cls: 'err', delay: 350 },
+  { text: '[SCAN]  CVE-2024-9999 · 远程代码执行', cls: 'err', delay: 300 },
+  { text: '[SCAN]  CVE-2024-0420 · 内存损坏', cls: 'err', delay: 300 },
+  { text: '[RANSOM] 勒索软件变种 "WannaCry 3.0" 已激活', cls: 'warn', delay: 500 },
+  { text: '[RANSOM] 正在加密用户文件...', cls: 'err', delay: 400 },
+  { text: '[ENCRYPT] C:\\Users\\*\\Documents\\* → .locked', cls: 'dim', delay: 350 },
+  { text: '[ENCRYPT] C:\\Users\\*\\Desktop\\* → .locked', cls: 'dim', delay: 300 },
+  { text: '[ENCRYPT] C:\\Users\\*\\Pictures\\* → .locked', cls: 'dim', delay: 300 },
+  { text: '[ENCRYPT] 浏览器密码库 → .locked', cls: 'dim', delay: 250 },
+  { text: '[ENCRYPT] 浏览器历史记录 → 已提取', cls: 'err', delay: 300 },
+  { text: '[EXFIL]  正在上传数据到暗网...', cls: 'warn', delay: 500 },
+  { text: '[EXFIL]  连接 Tor 网络... OK', cls: 'dim', delay: 400 },
+  { text: '[EXFIL]  上传中: 247MB / 1.2GB...', cls: 'hl', delay: 300 },
+  { text: '[BTC]    赎金地址: 1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa', cls: 'dim', delay: 600 },
+  { text: '[ALERT]  ⚠️ 您的设备已被完全控制', cls: 'err', delay: 400 },
+];
+
+let terminalLineIdx = 0;
+
+function startTerminal() {
+  const terminal = document.getElementById('terminal');
+  terminal.innerHTML = '';
+
+  function addLine() {
+    if (terminalLineIdx >= terminalLines.length) {
+      // 循环
+      terminalLineIdx = 0;
+      terminal.innerHTML = '';
+      addLine();
+      return;
+    }
+
+    const l = terminalLines[terminalLineIdx];
+    const div = document.createElement('div');
+    div.className = 'line ' + (l.cls || '');
+    div.textContent = l.text;
+    terminal.appendChild(div);
+
+    // 保持滚动到底部
+    terminal.scrollTop = terminal.scrollHeight;
+
+    terminalLineIdx++;
+    setTimeout(addLine, l.delay || 280);
+  }
+
+  setTimeout(addLine, 500);
+}
+
+// ── 进度条 ──
+const progressStates = {
+  encrypt: { el: null, target: 0, current: 0 },
+  leak: { el: null, target: 0, current: 0 },
+  infect: { el: null, target: 0, current: 0 },
+};
+
+function startProgressBars() {
+  progressStates.encrypt.el = document.getElementById('encryptBar');
+  progressStates.leak.el = document.getElementById('leakBar');
+  progressStates.infect.el = document.getElementById('infectBar');
+
+  // 随机推进
+  function scheduleNext(key, min, max) {
+    const state = progressStates[key];
+    state.target = Math.min(98, state.current + (Math.random() * (max - min) + min));
+  }
+
+  function animateProgress() {
+    ['encrypt', 'leak', 'infect'].forEach((key) => {
+      const state = progressStates[key];
+      const diff = state.target - state.current;
+      if (Math.abs(diff) > 0.5) {
+        state.current += diff * 0.1;
+        state.el.style.width = state.current + '%';
+        document.getElementById(key + 'Percent').textContent =
+          Math.round(state.current) + '%';
+      }
+    });
+    requestAnimationFrame(animateProgress);
+  }
+
+  // 初始目标
+  scheduleNext('encrypt', 8, 20);
+  scheduleNext('leak', 4, 12);
+  scheduleNext('infect', 3, 10);
+
+  // 周期性设置新目标
+  setInterval(() => scheduleNext('encrypt', 5, 15), 2500);
+  setInterval(() => scheduleNext('leak', 3, 10), 3000);
+  setInterval(() => scheduleNext('infect', 2, 8), 3500);
+
+  requestAnimationFrame(animateProgress);
+}
+
+// ── 赎金按钮 ──
+function handleRansom() {
+  const overlay = document.getElementById('revealOverlay');
+  overlay.classList.add('active');
+  spawnConfetti();
+}
+
+// ── 点击"忽略警告"更搞笑 ──
+function handleIgnore() {
+  const btn = document.querySelector('.btn-ghost');
+  btn.textContent = '⚠️ 忽略无效！';
+  btn.style.color = '#ff6961';
+  btn.style.borderColor = 'rgba(255,59,48,0.5)';
+  btn.disabled = true;
+
+  // 加速进度条
+  progressStates.encrypt.target = 95;
+  progressStates.leak.target = 92;
+  progressStates.infect.target = 89;
+
+  // 终端加一条
+  const terminal = document.getElementById('terminal');
+  const div = document.createElement('div');
+  div.className = 'line err';
+  div.textContent = '[ALERT]  用户尝试忽略警告！攻击已加速！！';
+  terminal.appendChild(div);
+  terminal.scrollTop = terminal.scrollHeight;
+
+  setTimeout(() => {
+    btn.textContent = '忽略警告';
+    btn.style.color = '';
+    btn.style.borderColor = '';
+    btn.disabled = false;
+  }, 3000);
+}
+
+// ── 关闭揭示层 ──
+function closeReveal() {
+  const overlay = document.getElementById('revealOverlay');
+  overlay.classList.remove('active');
+  // 清理纸屑
+  document.querySelectorAll('.confetti-piece').forEach(el => el.remove());
+  // 重置倒计时
+  countdownSeconds = 4 * 60 + 59;
+}
+
+// ── 五彩纸屑 ──
+function spawnConfetti() {
+  const colors = [
+    '#ff3b30', '#ff9f0a', '#ffd60a',
+    '#30d158', '#0a84ff', '#af52de',
+    '#ff6b5e', '#40d8bf', '#ff85b3',
+    '#64d2ff', '#ffd426', '#bf5af2',
+  ];
+
+  for (let i = 0; i < 120; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = Math.random() * 100 + '%';
+    piece.style.top = -(Math.random() * 30) + 'px';
+    piece.style.width = (6 + Math.random() * 10) + 'px';
+    piece.style.height = (4 + Math.random() * 8) + 'px';
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    piece.style.animationDuration = (2 + Math.random() * 4) + 's';
+    piece.style.animationDelay = Math.random() * 1.5 + 's';
+    document.body.appendChild(piece);
+
+    // 自动清理
+    setTimeout(() => piece.remove(), 6000);
+  }
+}
+</script>
+</body>
+</html>
